@@ -3,6 +3,8 @@ import Map from "../../models/Map.js";
 import User from "../../models/User.js";
 import officialCountryMaps from '../../public/officialCountryMaps.json' with { type: "json" };
 
+export const runtime = "edge"
+
 let mapCache = {
   popular: {
     data: [],

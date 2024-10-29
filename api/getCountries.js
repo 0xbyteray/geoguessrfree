@@ -5,6 +5,8 @@
 import countries from '../public/countries.json' with { type: "json" };
 import countryMaxDists from '../public/countryMaxDists.json' with { type: "json" };
 
+export const runtime = "edge"
+
 async function getCountries(req, res) {
   const out = {};
   for (const country of countries) {

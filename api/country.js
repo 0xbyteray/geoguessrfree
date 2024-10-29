@@ -1,6 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 // xml 2 json npm
  import lookup from "coordinate_to_country"
+
+export const runtime = "edge"
+
  export default async function handler(req, res) {
 
    const { lat, lon } = req.query;

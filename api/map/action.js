@@ -15,6 +15,8 @@ import User from '../../models/User.js';
 import countries from '../../public/countries.json' with { type: "json" };
 import officialCountryMaps from '../../public/officialCountryMaps.json' with { type: "json" };
 
+export const runtime = "edge"
+
 // Function to convert latitude and longitude to Cartesian coordinates
 function latLngToCartesian(lat, lng) {
   const R = 6371; // Earth radius in km

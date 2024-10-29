@@ -5,6 +5,8 @@ import calcPoints from '../components/calcPoints.js';
 import storeGame from '../components/storeGame.js';
 import ratelimiter from '../components/utils/ratelimitMiddleware.js';
 
+export const runtime = "edge"
+
 // multiplayer after guess
 async function guess(req, res) {
   const { lat, long, actualLat, actualLong, usedHint, secret, roundTime, maxDist } = req.body;

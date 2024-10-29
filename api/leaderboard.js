@@ -3,6 +3,8 @@ import User from '../models/User.js';
 const cache = { data: null, timestamp: null };
 const pastDayCache = { data: null, timestamp: null };
 
+export const runtime = "edge"
+
 function sendableUser(user) {
   if (!user.username) {
     return null;

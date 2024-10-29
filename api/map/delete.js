@@ -1,6 +1,8 @@
 import Map from "../../models/Map.js";
 import User from "../../models/User.js";
 
+export const runtime = "edge"
+
 export default async function handler(req, res) {
   // only allow DELETE
   if (req.method !== 'DELETE') {

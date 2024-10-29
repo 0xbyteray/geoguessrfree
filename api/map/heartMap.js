@@ -1,6 +1,8 @@
 import Map from '../../models/Map.js';
 import User from '../../models/User.js';
 
+export const runtime = "edge"
+
 const HEART_COOLDOWN = 500;
 let recentHearts = {}
 

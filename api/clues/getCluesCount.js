@@ -1,5 +1,7 @@
 import Clue from '../../models/Clue.js';
 
+export const runtime = "edge"
+
 let clueCountCache = {
   count: 0,
   timestamp: 0

@@ -4,6 +4,8 @@ import Map from "../../models/Map.js";
 import User from "../../models/User.js";
 import msToTime from "../../components/msToTime.js";
 
+export const runtime = "edge"
+
 export default async function handler(req, res) {
   const slug = req.query.slug;
   console.log("Getting map data for", slug);

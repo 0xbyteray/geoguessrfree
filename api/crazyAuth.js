@@ -7,6 +7,8 @@ import { createUUID } from "../components/createUUID.js";
 import User from "../models/User.js";
 import { Webhook } from "discord-webhook-node";
 
+export const runtime = "edge"
+
 export default async function handler(req, res) {
   // only accept post
   if (req.method !== 'POST') {

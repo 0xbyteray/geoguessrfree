@@ -1,6 +1,8 @@
 import Clue from '../../models/Clue.js';
 import User from '../../models/User.js';
 
+export const runtime = "edge"
+
 async function handler(req, res) {
   if (req.method === 'POST') {
     try {

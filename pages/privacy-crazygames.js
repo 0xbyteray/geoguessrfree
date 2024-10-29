@@ -1,8 +1,6 @@
 import Link from 'next/link';
 import React from 'react';
 
-export const runtime = 'experimental-edge';
-
 const PrivacyPolicy = () => {
   return (
     <div style={{ padding: '2rem' }}>

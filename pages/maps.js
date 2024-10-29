@@ -8,8 +8,6 @@ import config from "@/clientConfig";
 import { useSession } from "@/components/auth/auth";
 import Head from "next/head";
 
-export const runtime = 'experimental-edge';
-
 export default function MapsPage({  }) {
     const router = useRouter();
     const { t: text } = useTranslation("common");

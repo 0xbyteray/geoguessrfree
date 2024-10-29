@@ -4,6 +4,8 @@ import fs from 'fs';
 import User from '../../models/User.js';
 import Clue from '../../models/Clue.js';
 
+export const runtime = "edge"
+
 // const openai = new OpenAI({
 //   apiKey: process.env.OPENAI_API_KEY,
 // });
