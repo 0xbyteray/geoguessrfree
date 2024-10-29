@@ -1,7 +1,7 @@
 import { Html, Head, Main, NextScript } from "next/document";
 import React, { useEffect } from "react";
 
-export const runtime = 'edge';
+export const runtime = 'experimental-edge';
 
 export default function Document() {
   return (

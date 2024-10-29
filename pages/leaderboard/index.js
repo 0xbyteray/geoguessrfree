@@ -4,7 +4,7 @@ import { useSession } from '@/components/auth/auth';
 import { useTranslation } from '@/components/useTranslations'
 import config from '@/clientConfig';
 
-export const runtime = 'edge';
+export const runtime = 'experimental-edge';
 
 const Leaderboard = ({ }) => {
   const { t: text } = useTranslation("common");

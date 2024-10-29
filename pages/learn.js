@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import config from '@/clientConfig';
 
-export const runtime = 'edge';
+export const runtime = 'experimental-edge';
 
 export default function Learn({ locale }) {
 const [clueCnt, setClueCnt] = React.useState(0);

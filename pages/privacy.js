@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import React from 'react';
 
-export const runtime = 'edge';
+export const runtime = 'experimental-edge';
 
 const PrivacyPolicy = () => {
   return (

@@ -8,7 +8,7 @@ import config from '@/clientConfig';
 import { getHeaders } from '@/components/auth/auth';
 import { toast } from 'react-toastify';
 
-export const runtime = 'edge';
+export const runtime = 'experimental-edge';
 // export async function getServerSideProps(context) {
 //   const { slug } = context.params;
 //   const locale = context.locale;
