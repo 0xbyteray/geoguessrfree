@@ -8,6 +8,8 @@ import { useEffect } from "react";
 
 import '@smastrom/react-rating/style.css'
 
+export const runtime = 'edge';
+
 function App({ Component, pageProps }) {
   return (
     <>
