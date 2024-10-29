@@ -8,12 +8,12 @@ import { useEffect } from "react";
 
 import '@smastrom/react-rating/style.css'
 
-export const runtime = 'edge';
+export const runtime = 'experimental-edge';
 
 function App({ Component, pageProps }) {
   return (
     <>
-      <GoogleAnalytics trackPageViews gaMeasurementId="G-KFK0S0RXG5" />
+      {/* <GoogleAnalytics trackPageViews gaMeasurementId="G-KFK0S0RXG5" /> */}
       { process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID  ? (
       <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
       <Component {...pageProps} />
