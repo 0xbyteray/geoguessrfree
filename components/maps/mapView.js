@@ -43,6 +43,8 @@ export default function MapView({ inLegacy, gameOptions, setGameOptions, singlep
 
     window.cConfig = config();
 
+    // console.log("fetching map home", window.cConfig.apiUrl+"/api/map/mapHome");
+
     fetch(window.cConfig.apiUrl+"/api/map/mapHome", {
       method: "POST",
       headers: {

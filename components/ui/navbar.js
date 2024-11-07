@@ -25,7 +25,7 @@ export default function Navbar({ maintenance, inCrazyGames, inGame, openAccountM
     <div className={`navbar ${shown ? "" : "hidden"}`}>
       <div className={`nonHome ${screen==='home'?'':'shown'}`}>
       <h1 className="navbar__title desktop" onClick={onNavbarPress}>WorldGuessr</h1>
-      <h1 className="navbar__title mobile" onClick={onNavbarPress}>WG</h1>
+      <h1 className="navbar__title mobile" onClick={onNavbarPress}>WorldGuessr</h1>
 
       <button className="gameBtn navBtn backBtn desktop" onClick={backBtnPressed}>{text("back")}</button>
       <button className="gameBtn navBtn backBtn mobile" onClick={backBtnPressed}><FaArrowLeft /></button>
@@ -40,9 +40,9 @@ export default function Navbar({ maintenance, inCrazyGames, inGame, openAccountM
           {maintenance ? text("maintenanceMode") : text("onlineCnt", {cnt:multiplayerState.playerCount})}
         </span>
       )}
-      {!multiplayerState?.connected && (
+      {/* {!multiplayerState?.connected && (
         <WsIcon connected={false} shown={true} />
-      )}
+      )} */}
 
 
         { screen === 'multiplayer' && multiplayerState?.inGame && multiplayerState?.gameData?.players.length > 0 && (
@@ -66,8 +66,8 @@ export default function Navbar({ maintenance, inCrazyGames, inGame, openAccountM
           ''}
           </button>
         )}
-        {!inGame && showAccBtn && (<AccountBtn inCrazyGames={inCrazyGames} session={session} navbarMode={true} openAccountModal={openAccountModal} />)}
-        </div>
+        {/* {!inGame && showAccBtn && (<AccountBtn inCrazyGames={inCrazyGames} session={session} navbarMode={true} openAccountModal={openAccountModal} />)} */}
+      </div>
     </div>
 )}
     </>

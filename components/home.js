@@ -829,7 +829,7 @@ setShowCountryButtons(false)
         connecting: true,
         shouldConnect: false
       }))
-      const ws = await initWebsocket(clientConfig().websocketUrl, null, 5000, 20)
+      const ws = await initWebsocket(clientConfig().websocketUrl, null, 5000, 0)
       if(ws && ws.readyState === 1) {
       setWs(ws)
       setMultiplayerState((prev)=>({
@@ -866,7 +866,7 @@ setShowCountryButtons(false)
 
       }
       } else {
-        alert("could not connect to server")
+        console.error("could not connect to server")
       }
 
     }
@@ -1473,67 +1473,67 @@ setShowCountryButtons(false)
       options = options.sort(() => Math.random() - 0.5)
       setOtherOptions(options)
     } else {
-    function defaultMethod() {
-    findLatLongRandom(gameOptions).then((latLong) => {
-      setLatLong(latLong)
-    });
-  }
-  function fetchMethod() {
-    console.log("fetching")
-    fetch(window.cConfig.apiUrl+((gameOptions.location==="all")?`/${window?.learnMode ? 'clue': 'all'}Countries.json`:`/mapLocations/${gameOptions.location}`)).then((res) => res.json()).then((data) => {
-      if(data.ready) {
-        // this uses long for lng
-        for(let i = 0; i < data.locations.length; i++) {
-          if(data.locations[i].lng && !data.locations[i].long) {
-            data.locations[i].long = data.locations[i].lng;
-            delete data.locations[i].lng;
-          }
-        }
-
-        setAllLocsArray(data.locations)
-
-        if(gameOptions.location === "all") {
-        const loc = data.locations[0]
-        setLatLong(loc)
-        } else {
-          let loc = data.locations[Math.floor(Math.random() * data.locations.length)];
-
-          while(loc.lat === latLong.lat && loc.long === latLong.long) {
-            loc = data.locations[Math.floor(Math.random() * data.locations.length)];
-          }
-
-          setLatLong(loc)
-          if(data.name) {
-
-            // calculate extent (for openlayers)
-             const mappedLatLongs = data.locations.map((l) => fromLonLat([l.long, l.lat], 'EPSG:4326'));
-             let extent = boundingExtent(mappedLatLongs);
-             console.log("extent", extent)
-             // convert extent from EPSG:4326 to EPSG:3857 (for openlayers)
-
-            setGameOptions((prev) => ({
-              ...prev,
-              communityMapName: data.name,
-              official: data.official ?? false,
-              maxDist: data.maxDist ?? 20000,
-              extent: extent
-            }))
-
-          }
-        }
-
-      } else {
-        if(gameOptions.location !== "all") {
-      toast(text("errorLoadingMap"), { type: 'error' })
-        }
-        defaultMethod()
+      function defaultMethod() {
+        findLatLongRandom(gameOptions).then((latLong) => {
+          setLatLong(latLong)
+        });
       }
-    }).catch((e) => {
-      console.error(e)
-      toast(text("errorLoadingMap"), { type: 'error' })
-      defaultMethod()
-    });
-  }
+      function fetchMethod() {
+        console.log("fetching")
+        fetch(window.cConfig.apiUrl+((gameOptions.location==="all")?`/${window?.learnMode ? 'clue': 'all'}Countries.json`:`/mapLocations/${gameOptions.location}`)).then((res) => res.json()).then((data) => {
+          if(data.ready) {
+            // this uses long for lng
+            for(let i = 0; i < data.locations.length; i++) {
+              if(data.locations[i].lng && !data.locations[i].long) {
+                data.locations[i].long = data.locations[i].lng;
+                delete data.locations[i].lng;
+              }
+            }
+
+            setAllLocsArray(data.locations)
+
+            if(gameOptions.location === "all") {
+            const loc = data.locations[0]
+            setLatLong(loc)
+            } else {
+              let loc = data.locations[Math.floor(Math.random() * data.locations.length)];
+
+              while(loc.lat === latLong.lat && loc.long === latLong.long) {
+                loc = data.locations[Math.floor(Math.random() * data.locations.length)];
+              }
+
+              setLatLong(loc)
+              if(data.name) {
+
+                // calculate extent (for openlayers)
+                const mappedLatLongs = data.locations.map((l) => fromLonLat([l.long, l.lat], 'EPSG:4326'));
+                let extent = boundingExtent(mappedLatLongs);
+                console.log("extent", extent)
+                // convert extent from EPSG:4326 to EPSG:3857 (for openlayers)
+
+                setGameOptions((prev) => ({
+                  ...prev,
+                  communityMapName: data.name,
+                  official: data.official ?? false,
+                  maxDist: data.maxDist ?? 20000,
+                  extent: extent
+                }))
+
+              }
+            }
+
+          } else {
+            if(gameOptions.location !== "all") {
+          toast(text("errorLoadingMap"), { type: 'error' })
+            }
+            defaultMethod()
+          }
+        }).catch((e) => {
+          console.error(e)
+          toast(text("errorLoadingMap"), { type: 'error' })
+          defaultMethod()
+        });
+      }
   if(gameOptions.countryMap && gameOptions.official) {
     defaultMethod()
   } else {
@@ -1735,45 +1735,46 @@ setShowCountryButtons(false)
     <>
       <HeadContent text={text}/>
 
-      <AccountModal inCrazyGames={inCrazyGames} shown={accountModalOpen} session={session} setAccountModalOpen={setAccountModalOpen} />
+      {/* <AccountModal inCrazyGames={inCrazyGames} shown={accountModalOpen} session={session} setAccountModalOpen={setAccountModalOpen} />
       <SetUsernameModal shown={session && session?.token?.secret && !session.token.username} session={session} />
       <SuggestAccountModal shown={showSuggestLoginModal} setOpen={setShowSuggestLoginModal} />
       <DiscordModal shown={showDiscordModal} setOpen={setShowDiscordModal} />
-      <MerchModal shown={merchModal} onClose={() => setMerchModal(false)} session={session} />
+      <MerchModal shown={merchModal} onClose={() => setMerchModal(false)} session={session} /> */}
 
-      {ChatboxMemo}
+      {/* {ChatboxMemo}
     <ToastContainer/>
 
     <div className="videoAdParent hidden">
-  <div className="videoAdPlayer">
-    <div className="messageContainer">
-      <p className="thankYouMessage">{text("videoAdThanks")}<br/>{text("enjoyGameplay")}</p>
-    </div>
-    <div id="videoad"></div>
-  </div>
-</div>
+      <div className="videoAdPlayer">
+        <div className="messageContainer">
+          <p className="thankYouMessage">{text("videoAdThanks")}<br/>{text("enjoyGameplay")}</p>
+        </div>
+        <div id="videoad"></div>
+      </div>
+    </div> */}
 
 {screen === "home" && !mapModal && !merchModal && !friendsModal && !accountModalOpen && (
         <div className="home__footer">
           <div className="footer_btns">
         { !isApp && (
                   <>
-                <Link target="_blank" href={"https://discord.gg/ubdJHjKtrC"}><button className="home__squarebtn gameBtn discord" aria-label="Discord"><FaDiscord className="home__squarebtnicon" /></button></Link>
+                {/* <Link target="_blank" href={"https://discord.gg/ubdJHjKtrC"}><button className="home__squarebtn gameBtn discord" aria-label="Discord"><FaDiscord className="home__squarebtnicon" /></button></Link>
 
                   { !inCrazyGames && (
                     <>
                 <Link target="_blank" href={"https://www.youtube.com/@worldguessr?sub_confirmation=1"}><button className="home__squarebtn gameBtn youtube" aria-label="Youtube"><FaYoutube className="home__squarebtnicon" /></button></Link>
                 <Link target="_blank" href={"https://github.com/codergautam/worldguessr"}><button className="home__squarebtn gameBtn" aria-label="Github"><FaGithub className="home__squarebtnicon" /></button></Link>
                 </>
-                )}
-                <Link href={"/leaderboard"+(inCrazyGames ? "?crazygames": "")}>
+                )} */}
+                {/* <Link href={"/leaderboard"+(inCrazyGames ? "?crazygames": "")}>
 
-                <button className="home__squarebtn gameBtn" aria-label="Leaderboard"><FaRankingStar className="home__squarebtnicon" /></button></Link>
+                  <button className="home__squarebtn gameBtn" aria-label="Leaderboard"><FaRankingStar className="home__squarebtnicon" /></button>
+                </Link> */}
                 </>
-                )}
+        )}
 
-                <button className="home__squarebtn gameBtn" aria-label="Settings" onClick={() => setSettingsModal(true)}><FaGear className="home__squarebtnicon" /></button>
-                </div>
+            <button className="home__squarebtn gameBtn" aria-label="Settings" onClick={() => setSettingsModal(true)}><FaGear className="home__squarebtnicon" /></button>
+          </div>
         </div>
         )}
 
@@ -1796,48 +1797,46 @@ setShowCountryButtons(false)
       fill   alt="Game Background" style={{objectFit: "cover",userSelect:'none'}}
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       />
-      </div>
+</div>
 
 
       <main className={`home`} id="main">
         { latLong && latLong?.lat && latLong?.long && legacyMapLoader ? (
-<>
-    <iframe className={`streetview ${(loading || showAnswer) ? 'hidden' : ''} ${false ? 'multiplayer' : ''} ${gameOptions?.nmpz ? 'nmpz' : ''}`} src={`https://www.google.com/maps/embed/v1/streetview?location=${latLong.lat},${latLong.long}&key=AIzaSyA2fHNuyc768n9ZJLTrfbkWLNK3sLOK-iQ&fov=90`} id="streetview" referrerPolicy='no-referrer-when-downgrade' allow='accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture' onLoad={() => {
+        <>
+            <iframe className={`streetview ${(loading || showAnswer) ? 'hidden' : ''} ${false ? 'multiplayer' : ''} ${gameOptions?.nmpz ? 'nmpz' : ''}`} src={`https://www.google.com/maps/embed/v1/streetview?location=${latLong.lat},${latLong.long}&key=AIzaSyA2fHNuyc768n9ZJLTrfbkWLNK3sLOK-iQ&fov=90`} id="streetview" referrerPolicy='no-referrer-when-downgrade' allow='accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture' onLoad={() => {
 
-       }}></iframe>
-
-
-{/* put something in the top left to cover the address */}
-<div style={{
-  position: 'fixed',
-  top: '7px',
-  left: 0,
-  width: '200px',
-  height: '62px',
-  backgroundColor: 'rgba(0,0,0,0)',
-  // blur the address
-  backdropFilter: 'blur(10px)',
-  zIndex: 100
-}}></div>
+              }}></iframe>
 
 
-       </>
+          {/* put something in the top left to cover the address */}
+          <div style={{
+            position: 'fixed',
+            top: '7px',
+            left: 0,
+            width: '200px',
+            height: '62px',
+            backgroundColor: 'rgba(0,0,0,0)',
+            // blur the address
+            backdropFilter: 'blur(10px)',
+            zIndex: 100
+          }}></div>
+
+
+        </>
 
       ) : (
        <div id="googlemaps" className={`streetview inverted ${((!(latLong && multiplayerState?.gameData?.state !== 'end')) || (!streetViewShown || loading || (showAnswer && !showPanoOnResult) ||  (multiplayerState?.gameData?.state === 'getready') || !latLong)) ? 'hidden' : ''} ${false ? 'multiplayer' : ''} ${(gameOptions?.npz) ? 'nmpz' : ''}`}></div>
       )}
         <BannerText text={`${text("loading")}...`} shown={loading} showCompass={true} />
 
-
-
         <Navbar maintenance={maintenance} inCrazyGames={inCrazyGames} loading={loading} onFriendsPress={()=>setFriendsModal(true)} loginQueued={loginQueued} setLoginQueued={setLoginQueued} inGame={multiplayerState?.inGame || screen === "singleplayer"} openAccountModal={() => setAccountModalOpen(true)} session={session} shown={true} reloadBtnPressed={reloadBtnPressed} backBtnPressed={backBtnPressed} setGameOptionsModalShown={setGameOptionsModalShown} onNavbarPress={() => onNavbarLogoPress()} gameOptions={gameOptions} screen={screen} multiplayerState={multiplayerState} />
 
 {/* merch button */}
-{screen === "home" && !mapModal && session && session?.token?.secret && !inCrazyGames &&  !session?.token?.supporter && (
+{/* {screen === "home" && !mapModal && session && session?.token?.secret && !inCrazyGames &&  !session?.token?.supporter && (
   <button className="gameBtn merchBtn" onClick={()=>{setMerchModal(true)}}>
     Remove Ads
   </button>
-)}
+)} */}
 
 
         <div className={`home__content ${screen !== "home" ? "hidden" : ""} `}>
@@ -1867,20 +1866,20 @@ setShowCountryButtons(false)
               }} /> */}
               <button className="homeBtn" onClick={() => {
                 if (!loading) {
-                  // setScreen("singleplayer")
-                  crazyMidgame(() => setScreen("singleplayer"))
+                  setScreen("singleplayer")
+                  // crazyMidgame(() => setScreen("singleplayer"))
                 }
               }} >{text("singleplayer")}</button>
         {/* <span className="bigSpan">{text("playOnline")}</span> */}
-        <button className="homeBtn multiplayerOptionBtn publicGame" onClick={() => handleMultiplayerAction("publicDuel")}
-          disabled={!multiplayerState.connected || maintenance}>{text("findDuel")}</button>
+        {/* <button className="homeBtn multiplayerOptionBtn publicGame" onClick={() => handleMultiplayerAction("publicDuel")}
+          disabled={!multiplayerState.connected || maintenance}>{text("findDuel")}</button> */}
 
 
         {/* <span className="bigSpan" disabled={!multiplayerState.connected}>{text("playFriends")}</span> */}
-        <div className="multiplayerPrivBtns">
+        {/* <div className="multiplayerPrivBtns">
         <button className="homeBtn multiplayerOptionBtn" disabled={!multiplayerState.connected || maintenance} onClick={() => handleMultiplayerAction("createPrivateGame")}>{text("createGame")}</button>
         <button className="homeBtn multiplayerOptionBtn" disabled={!multiplayerState.connected || maintenance} onClick={() => handleMultiplayerAction("joinPrivateGame")}>{text("joinGame")}</button>
-        </div>
+        </div> */}
       </div>
 
               <div className="home__squarebtns">
@@ -1902,9 +1901,9 @@ setShowCountryButtons(false)
 
           <div style={{ marginTop: "20px" }}>
             <center>
-              { !loading && screen === "home"  && !inCrazyGames &&(!session?.token?.supporter) && (
+              {/* { !loading && screen === "home"  && !inCrazyGames &&(!session?.token?.supporter) && (
     <Ad inCrazyGames={inCrazyGames} screenH={height} types={[[320,50],[728,90],[970,90],[970,250]]} screenW={width} />
-              )}
+              )} */}
     </center>
             </div>
           </div>
@@ -1915,7 +1914,7 @@ setShowCountryButtons(false)
 
         </div>
 
-        <InfoModal shown={false} />
+        {/* <InfoModal shown={false} /> */}
         <MapsModal inLegacy={legacyMapLoader} shown={mapModal || gameOptionsModalShown} session={session} onClose={() => {setMapModal(false);setGameOptionsModalShown(false)}} text={text}
             customChooseMapCallback={(gameOptionsModalShown&&screen==="singleplayer")?(map)=> {
               console.log("map", map)
@@ -1928,10 +1927,10 @@ setShowCountryButtons(false)
 
         <SettingsModal inCrazyGames={inCrazyGames} options={options} setOptions={setOptions} shown={settingsModal} onClose={() => setSettingsModal(false)} />
 
-        <FriendsModal ws={ws} shown={friendsModal} onClose={() => setFriendsModal(false)} session={session} canSendInvite={
+        {/* <FriendsModal ws={ws} shown={friendsModal} onClose={() => setFriendsModal(false)} session={session} canSendInvite={
           // send invite if in a private multiplayer game, dont need to be host or in game waiting just need to be in a private game
           multiplayerState?.inGame && !multiplayerState?.gameData?.public
-        } sendInvite={sendInvite} />
+        } sendInvite={sendInvite} /> */}
 
         {screen === "singleplayer" && <div className="home__singleplayer">
           <GameUI
@@ -1990,7 +1989,7 @@ setShowCountryButtons(false)
 
 
 
-        <Script id="clarity">
+        {/* <Script id="clarity">
           {`
 
             window.lastAdShown = Date.now();
@@ -2103,7 +2102,7 @@ if(window.inCrazyGames) {
 }
 
   `}
-        </Script>
+        </Script> */}
       </main>
     </>
   )
