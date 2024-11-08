@@ -1,6 +1,6 @@
 import HeadContent from "@/components/headContent";
 import { FaDiscord, FaGithub } from "react-icons/fa";
-import { FaGear,FaRankingStar, FaYoutube } from "react-icons/fa6";
+import { FaGear, FaBook, FaRankingStar, FaYoutube } from "react-icons/fa6";
 import { signOut, useSession } from "@/components/auth/auth";
 import 'react-responsive-modal/styles.css';
 import { useEffect, useState, useRef } from "react";
@@ -181,68 +181,68 @@ export default function Home({ }) {
     setConfig(clientConfigData);
     window.cConfig = clientConfigData;
 
-    if(window.location.search.includes("app=true")) {
+    if (window.location.search.includes("app=true")) {
       setIsApp(true);
     }
-    if(window.location.search.includes("instantJoin=true")) {
+    if (window.location.search.includes("instantJoin=true")) {
       // crazygames
     }
 
-
     async function crazyAuthListener() {
-      console.log("crazygames auth listener")
+      console.log("crazygames auth listener");
       const user = await window.CrazyGames.SDK.user.getUser();
-      if(user) {
-        console.log("crazygames user", user)
+      if (user) {
+        console.log("crazygames user", user);
         const token = await window.CrazyGames.SDK.user.getUserToken();
-        if(token && user.username) {
+        if (token && user.username) {
           // /api/crazyAuth
-          fetch(clientConfigData.apiUrl+"/api/crazyAuth", {
+          fetch(clientConfigData.apiUrl + "/api/crazyAuth", {
             method: "POST",
             headers: {
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify({ token, username: user.username })
-          }).then((res) => res.json()).then((data) => {
-        console.log("crazygames auth", token, user, data)
-            try {
-            window.CrazyGames.SDK.game.loadingStop();
-            } catch(e) {}
-            if(data.secret && data.username) {
-              setSession({ token: { secret: data.secret, username: data.username } })
-              // verify the ws
-              window.verifyPayload = JSON.stringify({ type: "verify", secret: data.secret, username: data.username });
+            body: JSON.stringify({ token, username: user.username }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              console.log("crazygames auth", token, user, data);
+              try {
+                window.CrazyGames.SDK.game.loadingStop();
+              } catch (e) {}
+              if (data.secret && data.username) {
+                setSession({ token: { secret: data.secret, username: data.username } });
+                // verify the ws
+                window.verifyPayload = JSON.stringify({ type: "verify", secret: data.secret, username: data.username });
 
-              setWs((prev) => {
+                setWs((prev) => {
+                  if (prev) {
+                    console.log("sending verify");
 
-                if(prev) {
-                  console.log("sending verify")
-
-                  prev.send(window.verifyPayload)
-                }
-                return prev;
-              });
-            } else {
-              toast.error("CrazyGames auth failed")
-            }
-          }).catch((e) => {
-            try {
-            window.CrazyGames.SDK.game.loadingStop();
-            } catch(e) {}
-            console.error("crazygames auth failed", e)
-          });
-
+                    prev.send(window.verifyPayload);
+                  }
+                  return prev;
+                });
+              } else {
+                toast.error("CrazyGames auth failed");
+              }
+            })
+            .catch((e) => {
+              try {
+                window.CrazyGames.SDK.game.loadingStop();
+              } catch (e) {}
+              console.error("crazygames auth failed", e);
+            });
         }
       } else {
-        console.log("crazygames user not logged in")
+        console.log("crazygames user not logged in");
         // user not logged in
         // verify with not_logged_in
         window.verifyPayload = JSON.stringify({ type: "verify", secret: "not_logged_in", username: "not_logged_in" });
         setWs((prev) => {
-          if(prev) {
-            prev.send(window.verifyPayload)
+          if (prev) {
+            prev.send(window.verifyPayload);
           } else {
-            console.log("no ws, waiting for connection")
+            console.log("no ws, waiting for connection");
           }
           return prev;
         });
@@ -251,71 +251,69 @@ export default function Home({ }) {
 
     function finish() {
       const onboardingCompletedd = gameStorage.getItem("onboarding");
-      console.log("onboarding", onboardingCompletedd)
-      if(onboardingCompletedd !== "done") startOnboarding();
-      else setOnboardingCompleted(true)
+      console.log("onboarding", onboardingCompletedd);
+      if (onboardingCompletedd !== "done") startOnboarding();
+      else setOnboardingCompleted(true);
 
-      if(window.location.search.includes("map=")) {
-            // get map slug map=slug from url
-            const params = new URLSearchParams(window.location.search);
-            const mapSlug = params.get("map");
-            setScreen("singleplayer")
+      if (window.location.search.includes("map=")) {
+        // get map slug map=slug from url
+        const params = new URLSearchParams(window.location.search);
+        const mapSlug = params.get("map");
+        setScreen("singleplayer");
 
-            openMap(mapSlug)
+        openMap(mapSlug);
       }
-          }
-    if(window.location.search.includes("crazygames")) {
+    }
+    if (window.location.search.includes("crazygames")) {
       setInCrazyGames(true);
       window.inCrazyGames = true;
-      setLoading(true)
+      setLoading(true);
 
       window.onCrazyload = () => {
+        // initialize the sdk
+        try {
+          console.log("init crazygames sdk", window.CrazyGames);
 
-      // initialize the sdk
-      try {
-        console.log("init crazygames sdk", window.CrazyGames)
+          window.CrazyGames.SDK.init()
+            .then(async () => {
+              console.log("sdk initialized");
+              setLoading(false);
+              try {
+                window.CrazyGames.SDK.game.loadingStart();
+              } catch (e) {}
 
-         window.CrazyGames.SDK.init().then(async () => {
-          console.log("sdk initialized")
-          setLoading(false)
-          try {
-          window.CrazyGames.SDK.game.loadingStart();
-          } catch(e) {}
+              crazyAuthListener().then(() => {
+                // check if onboarding is done
+                finish();
+              });
 
-          crazyAuthListener().then(() => {
-            // check if onboarding is done
-            finish()
-          })
+              window.CrazyGames.SDK.user.addAuthListener(crazyAuthListener);
+            })
+            .catch((e) => {
+              finish();
+              console.error("crazygames sdk init failed", e);
+              setLoading(false);
+            });
+        } catch (e) {
+          console.error("crazygames sdk init failed", e);
+          finish();
+          setLoading(false);
+        }
+      };
 
-
-          window.CrazyGames.SDK.user.addAuthListener(crazyAuthListener);
-
-         }).catch((e) => {
-          finish()
-          console.error("crazygames sdk init failed", e)
-          setLoading(false)
-        })
-      } catch(e) {
-        console.error("crazygames sdk init failed", e)
-        finish()
-        setLoading(false)
+      if (window.CrazyGames) {
+        window.onCrazyload();
       }
     }
-
-    if(window.CrazyGames) {
-      window.onCrazyload();
-    }
-    }
-    initialMultiplayerState.createOptions.displayLocation = text("allCountries")
+    initialMultiplayerState.createOptions.displayLocation = text("allCountries");
 
     return () => {
       try {
         window.CrazyGames.SDK.user.removeAuthListener(crazyAuthListener);
-      } catch(e){
-        console.error("crazygames remove auth listener error", e)
+      } catch (e) {
+        console.error("crazygames remove auth listener error", e);
       }
-    }
-
+    };
   }, []);
 
   const [onboarding, setOnboarding] = useState(null);
@@ -341,56 +339,54 @@ export default function Home({ }) {
 
   const [allLocsArray, setAllLocsArray] = useState([]);
   function startOnboarding() {
-
-    if(inCrazyGames) {
+    if (inCrazyGames) {
       // make sure its not an invite link
-      const code = window.CrazyGames.SDK.game.getInviteParam("code")
-      if(code && code.length === 6) {
+      const code = window.CrazyGames.SDK.game.getInviteParam("code");
+      if (code && code.length === 6) {
         return;
       }
 
       // make sure tis not already completed
       const onboarding = gameStorage.getItem("onboarding");
-      if(onboarding === "done") {
+      if (onboarding === "done") {
         return;
       }
     }
 
-setScreen("onboarding")
+    setScreen("onboarding");
 
-let onboardingLocations = [
-  { lat: 40.7598687, long: -73.9764681, country: "US", otherOptions: ["GB", "JP"] },
-{ lat: 27.1719752, long: 78.0422793, country: "IN", otherOptions: ["ZA", "FR"] },
-{ lat: 51.5080896, long: -0.087694, country: "GB", otherOptions: ["US", "DE"] },
-  { lat: 55.7495807, long: 37.616477, country: "RU", otherOptions: ["CN", "PL"] },
-  // pyramid of giza 29.9773337,31.1321796
-  { lat: 29.9773337, long: 31.1321796, country: "EG", otherOptions: ["TR", "BR"] },
-  // eiffel tower 48.8592946,2.2927855
-  { lat: 48.8592946, long: 2.2927855, country: "FR", otherOptions: ["IT", "ES"] },
-  // statue of liberty 40.6909253,-74.0552998
-  { lat: 40.6909253, long: -74.0552998, country: "US", otherOptions: ["CA", "AU"] },
-  // brandenburg gate 52.5161999,13.3756414
-  { lat: 52.5161999, long: 13.3756414, country: "DE", otherOptions: ["RU", "JP"] },
+    let onboardingLocations = [
+      { lat: 40.7598687, long: -73.9764681, country: "US", otherOptions: ["GB", "JP"] },
+      { lat: 27.1719752, long: 78.0422793, country: "IN", otherOptions: ["ZA", "FR"] },
+      { lat: 51.5080896, long: -0.087694, country: "GB", otherOptions: ["US", "DE"] },
+      { lat: 55.7495807, long: 37.616477, country: "RU", otherOptions: ["CN", "PL"] },
+      // pyramid of giza 29.9773337,31.1321796
+      { lat: 29.9773337, long: 31.1321796, country: "EG", otherOptions: ["TR", "BR"] },
+      // eiffel tower 48.8592946,2.2927855
+      { lat: 48.8592946, long: 2.2927855, country: "FR", otherOptions: ["IT", "ES"] },
+      // statue of liberty 40.6909253,-74.0552998
+      { lat: 40.6909253, long: -74.0552998, country: "US", otherOptions: ["CA", "AU"] },
+      // brandenburg gate 52.5161999,13.3756414
+      { lat: 52.5161999, long: 13.3756414, country: "DE", otherOptions: ["RU", "JP"] },
+    ];
 
-]
+    // pick 5 random locations no repeats
+    const locations = [];
+    while (locations.length < 5) {
+      const loc = onboardingLocations[Math.floor(Math.random() * onboardingLocations.length)];
+      if (!locations.find((l) => l.country === loc.country)) {
+        locations.push(loc);
+      }
+    }
 
-// pick 5 random locations no repeats
-const locations = [];
-while (locations.length < 5) {
-  const loc = onboardingLocations[Math.floor(Math.random() * onboardingLocations.length)]
-  if (!locations.find((l) => l.country === loc.country)) {
-    locations.push(loc)
+    setOnboarding({
+      round: 1,
+      locations: locations,
+      startTime: Date.now(),
+    });
+    sendEvent("tutorial_begin");
+    setShowCountryButtons(false);
   }
-}
-
-setOnboarding({
-  round: 1,
-  locations: locations,
-  startTime: Date.now(),
-})
-sendEvent("tutorial_begin")
-setShowCountryButtons(false)
-}
   function openMap(mapSlug) {
     const country = countries.find((c) => c === mapSlug.toUpperCase());
     let officialCountryMap = null;
@@ -1383,8 +1379,8 @@ setShowCountryButtons(false)
       setScreen("home")
       setOnboarding(null)
       setOnboardingCompleted(true)
-        gameStorage.setItem("onboarding", 'done')
-
+      setStreetViewShown(false)
+      gameStorage.setItem("onboarding", 'done')
       return;
     }
 
@@ -1733,7 +1729,7 @@ setShowCountryButtons(false)
 
   return (
     <>
-      <HeadContent text={text}/>
+      <HeadContent text={text} />
 
       {/* <AccountModal inCrazyGames={inCrazyGames} shown={accountModalOpen} session={session} setAccountModalOpen={setAccountModalOpen} />
       <SetUsernameModal shown={session && session?.token?.secret && !session.token.username} session={session} />
@@ -1753,11 +1749,11 @@ setShowCountryButtons(false)
       </div>
     </div> */}
 
-{screen === "home" && !mapModal && !merchModal && !friendsModal && !accountModalOpen && (
+      {screen === "home" && !mapModal && !merchModal && !friendsModal && !accountModalOpen && (
         <div className="home__footer">
           <div className="footer_btns">
-        { !isApp && (
-                  <>
+            {!isApp && (
+              <>
                 {/* <Link target="_blank" href={"https://discord.gg/ubdJHjKtrC"}><button className="home__squarebtn gameBtn discord" aria-label="Discord"><FaDiscord className="home__squarebtnicon" /></button></Link>
 
                   { !inCrazyGames && (
@@ -1770,120 +1766,158 @@ setShowCountryButtons(false)
 
                   <button className="home__squarebtn gameBtn" aria-label="Leaderboard"><FaRankingStar className="home__squarebtnicon" /></button>
                 </Link> */}
-                </>
-        )}
+              </>
+            )}
 
-            <button className="home__squarebtn gameBtn" aria-label="Settings" onClick={() => setSettingsModal(true)}><FaGear className="home__squarebtnicon" /></button>
+            <button className="home__squarebtn gameBtn" aria-label="Tutorial" onClick={() => { if (!loading) { gameStorage.setItem("onboarding", null); startOnboarding(); } }}>
+              <FaBook className="home__squarebtnicon" />
+            </button>
+
+            <button className="home__squarebtn gameBtn" aria-label="Settings" onClick={() => setSettingsModal(true)}>
+              <FaGear className="home__squarebtnicon" />
+            </button>
           </div>
         </div>
-        )}
+      )}
 
-<div style={{
-        top: 0,
-        left: 0,
-        position: 'fixed',
-        width: '100vw',
-        height: '100vh',
-        transition: 'opacity 0.5s',
-        opacity: 0.4,
-        userSelect: 'none',
-       WebkitUserSelect: 'none',
-        MozUserSelect: 'none',
-        msUserSelect: 'none',
-        pointerEvents: 'none',
-      }}>
-      <NextImage.default src={'./street1.jpg'}
-      draggable={false}
-      fill   alt="Game Background" style={{objectFit: "cover",userSelect:'none'}}
-      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-      />
-</div>
-
+      <div
+        style={{
+          top: 0,
+          left: 0,
+          position: "fixed",
+          width: "100vw",
+          height: "100vh",
+          transition: "opacity 0.5s",
+          opacity: 0.4,
+          userSelect: "none",
+          WebkitUserSelect: "none",
+          MozUserSelect: "none",
+          msUserSelect: "none",
+          pointerEvents: "none",
+        }}
+      >
+        <NextImage.default
+          src={"./street1.jpg"}
+          draggable={false}
+          fill
+          alt="Game Background"
+          style={{ objectFit: "cover", userSelect: "none" }}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+      </div>
 
       <main className={`home`} id="main">
-        { latLong && latLong?.lat && latLong?.long && legacyMapLoader ? (
-        <>
-            <iframe className={`streetview ${(loading || showAnswer) ? 'hidden' : ''} ${false ? 'multiplayer' : ''} ${gameOptions?.nmpz ? 'nmpz' : ''}`} src={`https://www.google.com/maps/embed/v1/streetview?location=${latLong.lat},${latLong.long}&key=AIzaSyA2fHNuyc768n9ZJLTrfbkWLNK3sLOK-iQ&fov=90`} id="streetview" referrerPolicy='no-referrer-when-downgrade' allow='accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture' onLoad={() => {
+        {latLong && latLong?.lat && latLong?.long && legacyMapLoader ? (
+          <>
+            <iframe
+              className={`streetview ${loading || showAnswer ? "hidden" : ""} ${false ? "multiplayer" : ""} ${
+                gameOptions?.nmpz ? "nmpz" : ""
+              }`}
+              src={`https://www.google.com/maps/embed/v1/streetview?location=${latLong.lat},${latLong.long}&key=AIzaSyA2fHNuyc768n9ZJLTrfbkWLNK3sLOK-iQ&fov=90`}
+              id="streetview"
+              referrerPolicy="no-referrer-when-downgrade"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
+              onLoad={() => {}}
+            ></iframe>
 
-              }}></iframe>
-
-
-          {/* put something in the top left to cover the address */}
-          <div style={{
-            position: 'fixed',
-            top: '7px',
-            left: 0,
-            width: '200px',
-            height: '62px',
-            backgroundColor: 'rgba(0,0,0,0)',
-            // blur the address
-            backdropFilter: 'blur(10px)',
-            zIndex: 100
-          }}></div>
-
-
-        </>
-
-      ) : (
-       <div id="googlemaps" className={`streetview inverted ${((!(latLong && multiplayerState?.gameData?.state !== 'end')) || (!streetViewShown || loading || (showAnswer && !showPanoOnResult) ||  (multiplayerState?.gameData?.state === 'getready') || !latLong)) ? 'hidden' : ''} ${false ? 'multiplayer' : ''} ${(gameOptions?.npz) ? 'nmpz' : ''}`}></div>
-      )}
+            {/* put something in the top left to cover the address */}
+            <div
+              style={{
+                position: "fixed",
+                top: "7px",
+                left: 0,
+                width: "200px",
+                height: "62px",
+                backgroundColor: "rgba(0,0,0,0)",
+                // blur the address
+                backdropFilter: "blur(10px)",
+                zIndex: 100,
+              }}
+            ></div>
+          </>
+        ) : (
+          <div
+            id="googlemaps"
+            className={`streetview inverted ${
+              !(latLong && multiplayerState?.gameData?.state !== "end") ||
+              !streetViewShown ||
+              loading ||
+              (showAnswer && !showPanoOnResult) ||
+              multiplayerState?.gameData?.state === "getready" ||
+              !latLong
+                ? "hidden"
+                : ""
+            } ${false ? "multiplayer" : ""} ${gameOptions?.npz ? "nmpz" : ""}`}
+          ></div>
+        )}
         <BannerText text={`${text("loading")}...`} shown={loading} showCompass={true} />
 
-        <Navbar maintenance={maintenance} inCrazyGames={inCrazyGames} loading={loading} onFriendsPress={()=>setFriendsModal(true)} loginQueued={loginQueued} setLoginQueued={setLoginQueued} inGame={multiplayerState?.inGame || screen === "singleplayer"} openAccountModal={() => setAccountModalOpen(true)} session={session} shown={true} reloadBtnPressed={reloadBtnPressed} backBtnPressed={backBtnPressed} setGameOptionsModalShown={setGameOptionsModalShown} onNavbarPress={() => onNavbarLogoPress()} gameOptions={gameOptions} screen={screen} multiplayerState={multiplayerState} />
+        <Navbar
+          maintenance={maintenance}
+          inCrazyGames={inCrazyGames}
+          loading={loading}
+          onFriendsPress={() => setFriendsModal(true)}
+          loginQueued={loginQueued}
+          setLoginQueued={setLoginQueued}
+          inGame={multiplayerState?.inGame || screen === "singleplayer"}
+          openAccountModal={() => setAccountModalOpen(true)}
+          session={session}
+          shown={true}
+          reloadBtnPressed={reloadBtnPressed}
+          backBtnPressed={backBtnPressed}
+          setGameOptionsModalShown={setGameOptionsModalShown}
+          onNavbarPress={() => onNavbarLogoPress()}
+          gameOptions={gameOptions}
+          screen={screen}
+          multiplayerState={multiplayerState}
+        />
 
-{/* merch button */}
-{/* {screen === "home" && !mapModal && session && session?.token?.secret && !inCrazyGames &&  !session?.token?.supporter && (
+        {/* merch button */}
+        {/* {screen === "home" && !mapModal && session && session?.token?.secret && !inCrazyGames &&  !session?.token?.supporter && (
   <button className="gameBtn merchBtn" onClick={()=>{setMerchModal(true)}}>
     Remove Ads
   </button>
 )} */}
 
-
         <div className={`home__content ${screen !== "home" ? "hidden" : ""} `}>
+          {onboardingCompleted === null ? (
+            <></>
+          ) : (
+            <>
+              <div className="home__ui">
+                {onboardingCompleted && <h1 className="home__title">WorldGuessr</h1>}
 
-
-        { onboardingCompleted===null ? (
-          <>
-
-          </>
-        ) : (
-          <>
-
-          <div className="home__ui">
-            { onboardingCompleted && (
-            <h1 className="home__title">WorldGuessr</h1>
-            )}
-
-            <div className="home__btns">
-
-              { onboardingCompleted && (
-
-              <>
-      <div className={`mainHomeBtns `}>
-
-               {/* <GameBtn text={text("singleplayer")} onClick={() => {
+                <div className="home__btns">
+                  {onboardingCompleted && (
+                    <>
+                      <div className={`mainHomeBtns `}>
+                        {/* <GameBtn text={text("singleplayer")} onClick={() => {
                 if (!loading) setScreen("singleplayer")
               }} /> */}
-              <button className="homeBtn" onClick={() => {
-                if (!loading) {
-                  setScreen("singleplayer")
-                  // crazyMidgame(() => setScreen("singleplayer"))
-                }
-              }} >{text("singleplayer")}</button>
-        {/* <span className="bigSpan">{text("playOnline")}</span> */}
-        {/* <button className="homeBtn multiplayerOptionBtn publicGame" onClick={() => handleMultiplayerAction("publicDuel")}
+                        <button
+                          className="homeBtn"
+                          onClick={() => {
+                            if (!loading) {
+                              setScreen("singleplayer");
+                              // crazyMidgame(() => setScreen("singleplayer"))
+                            }
+                          }}
+                        >
+                          {text("singleplayer")}
+                        </button>
+                        {/* <span className="bigSpan">{text("playOnline")}</span> */}
+                        {/* <button className="homeBtn multiplayerOptionBtn publicGame" onClick={() => handleMultiplayerAction("publicDuel")}
           disabled={!multiplayerState.connected || maintenance}>{text("findDuel")}</button> */}
 
-
-        {/* <span className="bigSpan" disabled={!multiplayerState.connected}>{text("playFriends")}</span> */}
-        {/* <div className="multiplayerPrivBtns">
+                        {/* <span className="bigSpan" disabled={!multiplayerState.connected}>{text("playFriends")}</span> */}
+                        {/* <div className="multiplayerPrivBtns">
         <button className="homeBtn multiplayerOptionBtn" disabled={!multiplayerState.connected || maintenance} onClick={() => handleMultiplayerAction("createPrivateGame")}>{text("createGame")}</button>
         <button className="homeBtn multiplayerOptionBtn" disabled={!multiplayerState.connected || maintenance} onClick={() => handleMultiplayerAction("joinPrivateGame")}>{text("joinGame")}</button>
         </div> */}
-      </div>
+                      </div>
 
-              <div className="home__squarebtns">
-{/*                 { !isApp && (
+                      <div className="home__squarebtns">
+                        {/*                 { !isApp && (
                   <>
                 <Link target="_blank" href={"https://github.com/codergautam/worldguessr"}><button className="home__squarebtn gameBtn" aria-label="Github"><FaGithub className="home__squarebtnicon" /></button></Link>
                 <Link target="_blank" href={"https://discord.gg/ubdJHjKtrC"}><button className="home__squarebtn gameBtn" aria-label="Discord"><FaDiscord className="home__squarebtnicon" /></button></Link>
@@ -1892,26 +1926,25 @@ setShowCountryButtons(false)
                 )}
                 <button className="home__squarebtn gameBtn" aria-label="Settings" onClick={() => setSettingsModal(true)}><FaGear className="home__squarebtnicon" /></button>
  */}
-                <button className="homeBtn" aria-label="Community Maps" onClick={()=>setMapModal(true)}>{text("communityMaps")}</button>
+                        {/* <button className="homeBtn" aria-label="Community Maps" onClick={() => setMapModal(true)}>
+                          {text("communityMaps")}
+                        </button> */}
+                      </div>
+                    </>
+                  )}
                 </div>
 
-              </>
-            )}
-            </div>
-
-          <div style={{ marginTop: "20px" }}>
-            <center>
-              {/* { !loading && screen === "home"  && !inCrazyGames &&(!session?.token?.supporter) && (
+                <div style={{ marginTop: "20px" }}>
+                  <center>
+                    {/* { !loading && screen === "home"  && !inCrazyGames &&(!session?.token?.supporter) && (
     <Ad inCrazyGames={inCrazyGames} screenH={height} types={[[320,50],[728,90],[970,90],[970,250]]} screenW={width} />
               )} */}
-    </center>
-            </div>
-          </div>
-          </>
-        )}
+                  </center>
+                </div>
+              </div>
+            </>
+          )}
           <br />
-
-
         </div>
 
         {/* <InfoModal shown={false} /> */}
@@ -1925,69 +1958,191 @@ setShowCountryButtons(false)
             singleplayer={screen==="singleplayer"}
             gameOptions={gameOptions} setGameOptions={setGameOptions} /> */}
 
-        <SettingsModal inCrazyGames={inCrazyGames} options={options} setOptions={setOptions} shown={settingsModal} onClose={() => setSettingsModal(false)} />
+        <SettingsModal
+          inCrazyGames={inCrazyGames}
+          options={options}
+          setOptions={setOptions}
+          shown={settingsModal}
+          onClose={() => setSettingsModal(false)}
+        />
 
         {/* <FriendsModal ws={ws} shown={friendsModal} onClose={() => setFriendsModal(false)} session={session} canSendInvite={
           // send invite if in a private multiplayer game, dont need to be host or in game waiting just need to be in a private game
           multiplayerState?.inGame && !multiplayerState?.gameData?.public
         } sendInvite={sendInvite} /> */}
 
-        {screen === "singleplayer" && <div className="home__singleplayer">
-          <GameUI
-          miniMapShown={miniMapShown} setMiniMapShown={setMiniMapShown}
-            singlePlayerRound={singlePlayerRound} setSinglePlayerRound={setSinglePlayerRound} showDiscordModal={showDiscordModal}  setShowDiscordModal={setShowDiscordModal} inCrazyGames={inCrazyGames} showPanoOnResult={showPanoOnResult} setShowPanoOnResult={setShowPanoOnResult} options={options} countryStreak={countryStreak} setCountryStreak={setCountryStreak} xpEarned={xpEarned} setXpEarned={setXpEarned} hintShown={hintShown} setHintShown={setHintShown} pinPoint={pinPoint} setPinPoint={setPinPoint} showAnswer={showAnswer} setShowAnswer={setShowAnswer} loading={loading} setLoading={setLoading} session={session} gameOptionsModalShown={gameOptionsModalShown} setGameOptionsModalShown={setGameOptionsModalShown} latLong={latLong} streetViewShown={streetViewShown} setStreetViewShown={setStreetViewShown} loadLocation={loadLocation} gameOptions={gameOptions} setGameOptions={setGameOptions} />
-        </div>}
+        {screen === "singleplayer" && (
+          <div className="home__singleplayer">
+            <GameUI
+              miniMapShown={miniMapShown}
+              setMiniMapShown={setMiniMapShown}
+              singlePlayerRound={singlePlayerRound}
+              setSinglePlayerRound={setSinglePlayerRound}
+              showDiscordModal={showDiscordModal}
+              setShowDiscordModal={setShowDiscordModal}
+              inCrazyGames={inCrazyGames}
+              showPanoOnResult={showPanoOnResult}
+              setShowPanoOnResult={setShowPanoOnResult}
+              options={options}
+              countryStreak={countryStreak}
+              setCountryStreak={setCountryStreak}
+              xpEarned={xpEarned}
+              setXpEarned={setXpEarned}
+              hintShown={hintShown}
+              setHintShown={setHintShown}
+              pinPoint={pinPoint}
+              setPinPoint={setPinPoint}
+              showAnswer={showAnswer}
+              setShowAnswer={setShowAnswer}
+              loading={loading}
+              setLoading={setLoading}
+              session={session}
+              gameOptionsModalShown={gameOptionsModalShown}
+              setGameOptionsModalShown={setGameOptionsModalShown}
+              latLong={latLong}
+              streetViewShown={streetViewShown}
+              setStreetViewShown={setStreetViewShown}
+              loadLocation={loadLocation}
+              gameOptions={gameOptions}
+              setGameOptions={setGameOptions}
+            />
+          </div>
+        )}
 
-        {screen === "onboarding" && onboarding?.round && <div className="home__onboarding">
-          <GameUI
-          miniMapShown={miniMapShown} setMiniMapShown={setMiniMapShown}
-            inCrazyGames={inCrazyGames} showPanoOnResult={showPanoOnResult} setShowPanoOnResult={setShowPanoOnResult} countryGuesserCorrect={countryGuesserCorrect} setCountryGuesserCorrect={setCountryGuesserCorrect} showCountryButtons={showCountryButtons} setShowCountryButtons={setShowCountryButtons} otherOptions={otherOptions} onboarding={onboarding} countryGuesser={false} setOnboarding={setOnboarding} options={options} countryStreak={countryStreak} setCountryStreak={setCountryStreak} xpEarned={xpEarned} setXpEarned={setXpEarned} hintShown={hintShown} setHintShown={setHintShown} pinPoint={pinPoint} setPinPoint={setPinPoint} showAnswer={showAnswer} setShowAnswer={setShowAnswer} loading={loading} setLoading={setLoading} session={session} gameOptionsModalShown={gameOptionsModalShown} setGameOptionsModalShown={setGameOptionsModalShown} latLong={latLong} streetViewShown={streetViewShown} setStreetViewShown={setStreetViewShown} loadLocation={loadLocation} gameOptions={gameOptions} setGameOptions={setGameOptions} />
-          </div>}
+        {screen === "onboarding" && onboarding?.round && (
+          <div className="home__onboarding">
+            <GameUI
+              miniMapShown={miniMapShown}
+              setMiniMapShown={setMiniMapShown}
+              inCrazyGames={inCrazyGames}
+              showPanoOnResult={showPanoOnResult}
+              setShowPanoOnResult={setShowPanoOnResult}
+              countryGuesserCorrect={countryGuesserCorrect}
+              setCountryGuesserCorrect={setCountryGuesserCorrect}
+              showCountryButtons={showCountryButtons}
+              setShowCountryButtons={setShowCountryButtons}
+              otherOptions={otherOptions}
+              onboarding={onboarding}
+              countryGuesser={false}
+              setOnboarding={setOnboarding}
+              options={options}
+              countryStreak={countryStreak}
+              setCountryStreak={setCountryStreak}
+              xpEarned={xpEarned}
+              setXpEarned={setXpEarned}
+              hintShown={hintShown}
+              setHintShown={setHintShown}
+              pinPoint={pinPoint}
+              setPinPoint={setPinPoint}
+              showAnswer={showAnswer}
+              setShowAnswer={setShowAnswer}
+              loading={loading}
+              setLoading={setLoading}
+              session={session}
+              gameOptionsModalShown={gameOptionsModalShown}
+              setGameOptionsModalShown={setGameOptionsModalShown}
+              latLong={latLong}
+              streetViewShown={streetViewShown}
+              setStreetViewShown={setStreetViewShown}
+              loadLocation={loadLocation}
+              gameOptions={gameOptions}
+              setGameOptions={setGameOptions}
+            />
+          </div>
+        )}
 
-          {screen === "onboarding" && onboarding?.completed && <div className="home__onboarding">
+        {screen === "onboarding" && onboarding?.completed && (
+          <div className="home__onboarding">
             <div className="home__onboarding__completed">
-              <OnboardingText words={[
-                text("onboarding1")
-              ]} pageDone={() => {
-                try {
-                  gameStorage.setItem("onboarding", 'done')
-                } catch(e) {}
-                setOnboarding((prev)=>{
-                  return {
-                    ...prev,
-                    finalOnboardingShown: true
-                  }
-                })
-              }} shown={!onboarding?.finalOnboardingShown} />
-              <RoundOverScreen onboarding={onboarding} setOnboarding={setOnboarding} points={onboarding.points} time={msToTime(onboarding.timeTaken)} maxPoints={25000} onHomePress={() =>{
-                if(onboarding) {
-                  sendEvent("tutorial_end");
+              <OnboardingText
+                words={[text("onboarding1")]}
+                pageDone={() => {
                   try {
-                  gameStorage.setItem("onboarding", 'done')
-                  } catch(e) {}
-                }
+                    gameStorage.setItem("onboarding", "done");
+                  } catch (e) {}
+                  setOnboarding((prev) => {
+                    return {
+                      ...prev,
+                      finalOnboardingShown: true,
+                    };
+                  });
+                }}
+                shown={!onboarding?.finalOnboardingShown}
+              />
+              <RoundOverScreen
+                onboarding={onboarding}
+                setOnboarding={setOnboarding}
+                points={onboarding.points}
+                time={msToTime(onboarding.timeTaken)}
+                maxPoints={25000}
+                onHomePress={() => {
+                  if (onboarding) {
+                    sendEvent("tutorial_end");
+                    try {
+                      gameStorage.setItem("onboarding", "done");
+                    } catch (e) {}
+                  }
 
-                setOnboarding(null)
-                if(!window.location.search.includes("app=true") && !inCrazyGames) {
-      setShowSuggestLoginModal(true)
-    }
-                setScreen("home")
-              }}/>
-              </div>
-              </div>
-}
+                  setOnboarding(null);
+                  if (!window.location.search.includes("app=true") && !inCrazyGames) {
+                    setShowSuggestLoginModal(true);
+                  }
+                  setScreen("home");
+                }}
+              />
+            </div>
+          </div>
+        )}
 
-        {screen === "multiplayer" && <div className="home__multiplayer">
-          <MultiplayerHome multiplayerError={multiplayerError} handleAction={handleMultiplayerAction} session={session} ws={ws} setWs={setWs} multiplayerState={multiplayerState} setMultiplayerState={setMultiplayerState} />
-        </div>}
+        {screen === "multiplayer" && (
+          <div className="home__multiplayer">
+            <MultiplayerHome
+              multiplayerError={multiplayerError}
+              handleAction={handleMultiplayerAction}
+              session={session}
+              ws={ws}
+              setWs={setWs}
+              multiplayerState={multiplayerState}
+              setMultiplayerState={setMultiplayerState}
+            />
+          </div>
+        )}
 
         {multiplayerState.inGame && ["guess", "getready", "end"].includes(multiplayerState.gameData?.state) && (
           <GameUI
-          miniMapShown={miniMapShown} setMiniMapShown={setMiniMapShown}
-          inCrazyGames={inCrazyGames} showPanoOnResult={showPanoOnResult} setShowPanoOnResult={setShowPanoOnResult} options={options} timeOffset={timeOffset} ws={ws} backBtnPressed={backBtnPressed} multiplayerChatOpen={multiplayerChatOpen} setMultiplayerChatOpen={setMultiplayerChatOpen} multiplayerState={multiplayerState} xpEarned={xpEarned} setXpEarned={setXpEarned} pinPoint={pinPoint} setPinPoint={setPinPoint} loading={loading} setLoading={setLoading} session={session} streetViewShown={streetViewShown} setStreetViewShown={setStreetViewShown} latLong={latLong} loadLocation={() => { }} gameOptions={{ location: "all", maxDist: 20000, extent: gameOptions?.extent ?? multiplayerState?.gameData?.extent }} setGameOptions={() => { }} showAnswer={(multiplayerState?.gameData?.curRound !== 1) && multiplayerState?.gameData?.state === 'getready'} setShowAnswer={guessMultiplayer} />
+            miniMapShown={miniMapShown}
+            setMiniMapShown={setMiniMapShown}
+            inCrazyGames={inCrazyGames}
+            showPanoOnResult={showPanoOnResult}
+            setShowPanoOnResult={setShowPanoOnResult}
+            options={options}
+            timeOffset={timeOffset}
+            ws={ws}
+            backBtnPressed={backBtnPressed}
+            multiplayerChatOpen={multiplayerChatOpen}
+            setMultiplayerChatOpen={setMultiplayerChatOpen}
+            multiplayerState={multiplayerState}
+            xpEarned={xpEarned}
+            setXpEarned={setXpEarned}
+            pinPoint={pinPoint}
+            setPinPoint={setPinPoint}
+            loading={loading}
+            setLoading={setLoading}
+            session={session}
+            streetViewShown={streetViewShown}
+            setStreetViewShown={setStreetViewShown}
+            latLong={latLong}
+            loadLocation={() => {}}
+            gameOptions={{
+              location: "all",
+              maxDist: 20000,
+              extent: gameOptions?.extent ?? multiplayerState?.gameData?.extent,
+            }}
+            setGameOptions={() => {}}
+            showAnswer={multiplayerState?.gameData?.curRound !== 1 && multiplayerState?.gameData?.state === "getready"}
+            setShowAnswer={guessMultiplayer}
+          />
         )}
-
-
 
         {/* <Script id="clarity">
           {`
@@ -2105,6 +2260,6 @@ if(window.inCrazyGames) {
         </Script> */}
       </main>
     </>
-  )
+  );
 }
 
