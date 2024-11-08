@@ -56,7 +56,7 @@ export default function Navbar({ maintenance, inCrazyGames, inGame, openAccountM
          <FaUserFriends size={40}/>
           </button>
         )}
-        { screen === 'singleplayer' && (
+        {/* { screen === 'singleplayer' && (
         <button className="gameBtn navBtn" disabled={loading} onClick={()=>setGameOptionsModalShown(true)}>
           {((gameOptions.location === "all")|| !gameOptions.location)? text("allCountries") : gameOptions?.countryMap?nameFromCode(gameOptions.location):gameOptions?.communityMapName}
           {gameOptions.nm && gameOptions.npz?
@@ -65,7 +65,8 @@ export default function Navbar({ maintenance, inCrazyGames, inGame, openAccountM
           gameOptions.npz? ', NPZ' :
           ''}
           </button>
-        )}
+        ) } */}
+
         {/* {!inGame && showAccBtn && (<AccountBtn inCrazyGames={inCrazyGames} session={session} navbarMode={true} openAccountModal={openAccountModal} />)} */}
       </div>
     </div>

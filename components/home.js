@@ -1915,7 +1915,7 @@ setShowCountryButtons(false)
         </div>
 
         {/* <InfoModal shown={false} /> */}
-        <MapsModal inLegacy={legacyMapLoader} shown={mapModal || gameOptionsModalShown} session={session} onClose={() => {setMapModal(false);setGameOptionsModalShown(false)}} text={text}
+        {/* <MapsModal inLegacy={legacyMapLoader} shown={mapModal || gameOptionsModalShown} session={session} onClose={() => {setMapModal(false);setGameOptionsModalShown(false)}} text={text}
             customChooseMapCallback={(gameOptionsModalShown&&screen==="singleplayer")?(map)=> {
               console.log("map", map)
               openMap(map.countryMap||map.slug);
@@ -1923,7 +1923,7 @@ setShowCountryButtons(false)
             }:null}
             showAllCountriesOption={(gameOptionsModalShown&&screen==="singleplayer")}
             singleplayer={screen==="singleplayer"}
-            gameOptions={gameOptions} setGameOptions={setGameOptions} />
+            gameOptions={gameOptions} setGameOptions={setGameOptions} /> */}
 
         <SettingsModal inCrazyGames={inCrazyGames} options={options} setOptions={setOptions} shown={settingsModal} onClose={() => setSettingsModal(false)} />
 
