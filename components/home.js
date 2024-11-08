@@ -73,7 +73,7 @@ const initialMultiplayerState = {
   }
 }
 
-export default function Home({ }) {
+export default function Home({ lang }) {
   const { width, height } = useWindowDimensions();
 
   const [session, setSession] = useState(false);
@@ -98,8 +98,7 @@ export default function Home({ }) {
   const [merchModal, setMerchModal] = useState(false)
   const [timeOffset, setTimeOffset] = useState(0)
   const [loginQueued, setLoginQueued] = useState(false);
-  const [options, setOptions] = useState({
-  });
+  const [options, setOptions] = useState({language: lang});
   const [multiplayerError, setMultiplayerError] = useState(null);
   const [miniMapShown, setMiniMapShown] = useState(false)
 
@@ -606,57 +605,59 @@ export default function Home({ }) {
   }, [session])
 
   useEffect(() => {
-    if(!options?.language) return;
+    if (!options?.language) return;
     try {
-      window.localStorage.setItem("lang", options?.language)
       window.language = options?.language;
-      console.log("set lang", options?.language)
+      // console.log("set lang", options?.language);
       const currentQueryParams = new URLSearchParams(window.location.search);
       const qPsuffix = currentQueryParams.toString() ? `?${currentQueryParams.toString()}` : "";
 
-      const location = `/${options?.language !== "en" ? options?.language : ""}`
-      if(!window.location.pathname.includes(location)) {
-        console.log("changing lang", location)
-        window.location.href = location+qPsuffix;
+      const location = `/${options?.language !== "en" ? options?.language : ""}`;
+
+      if (options?.language === "en" && window.location.pathname.includes("/en")) {
+        return;
       }
-      if(options?.language === "en" && ["es", "fr", "de", "ru"].includes(window.location.pathname.split("/")[1])) {
-        console.log("changing lang", location)
-        window.location.href = "/"+qPsuffix;
+
+      if (location !== window.location.pathname) {
+        console.log("changing lang", location);
+        window.location.href = location + qPsuffix;
       }
-    } catch(e) {}
+      // if(options?.language === "en" && ["es", "fr", "de", "ru"].includes(window.location.pathname.split("/")[1])) {
+      //   console.log("changing lang", location)
+      //   window.location.href = "/"+qPsuffix;
+      // }
+    } catch (e) {}
   }, [options?.language]);
 
-  const loadOptions =async () => {
-
+  const loadOptions = async () => {
     // try to fetch options from localstorage
     try {
-    const options = gameStorage.getItem("options");
-    console.log("options", options)
+      const options = gameStorage.getItem("options");
+      console.log("loadOptions", options);
 
+      if (options) {
+        setOptions({...JSON.parse(options), language: lang});
+      } else {
+        let json;
 
-    if (options) {
-      setOptions(JSON.parse(options))
-    } else {
-      let json;
+        try {
+          const res = await fetch("https://ipapi.co/json/");
+          json = await res.json();
+        } catch (e) {}
 
-      try {
-      const res = await fetch("https://ipapi.co/json/");
-       json = await res.json();
-      }catch(e){}
+        const countryCode = json?.country_code;
+        let system = "metric";
+        if (countryCode && ["US", "LR", "MM", "UK"].includes(countryCode)) system = "imperial";
 
-      const countryCode = json?.country_code;
-      let system = "metric";
-      if(countryCode && ["US", "LR", "MM", "UK"].includes(countryCode)) system = "imperial";
+        setOptions({
+          units: system,
+          mapType: "m", //m for normal
+          language: lang,
+        });
+      }
+    } catch (e) {}
+  };
 
-
-      setOptions({
-        units: system,
-        mapType: "m" //m for normal
-      })
-    }
-  } catch(e) {}
-
-  }
   useEffect(()=>{loadOptions()}, [])
 
   useEffect(() => {

@@ -18,6 +18,8 @@ export default function SettingsModal({ shown, onClose, options, setOptions, inC
 
     if(!options) return null;
 
+    // console.log("SettingsModal options", options);
+
     return (
         <Modal id="" styles={{
             modal: {
@@ -71,16 +73,16 @@ export default function SettingsModal({ shown, onClose, options, setOptions, inC
             </div>
 
             {/* disableVideoAds checkbox */}
-            <div style={{ marginTop: '20px' }}>
+            {/* <div style={{ marginTop: '20px' }}>
                 <input type="checkbox" id="disableVideoAds" checked={options.disableVideoAds} onChange={() => setOptions((prevOptions) => ({ ...prevOptions, disableVideoAds: !prevOptions.disableVideoAds }))} />
                 <label htmlFor="disableVideoAds" style={{ marginLeft: '10px' }}>{text("disableVideoAds")}</label>
-            </div>
+            </div> */}
             </>
             )}
 
-            {inCrazyGames && (
+            {/* {inCrazyGames && (
                 <a href="/privacy-crazygames" target="_blank" rel="noreferrer" style={{ marginTop: '20px', display: 'block', color: "white" }}>Privacy Policy</a>
-            )}
+            )} */}
 
 
         </Modal>
