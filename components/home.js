@@ -475,7 +475,7 @@ export default function Home({ lang }) {
       display: flex;
       justify-content: center;
       align-items: center;
-      background: url('https://www.worldguessr.com/street1.jpg') no-repeat center center/cover;
+      background: url('https://www.worldguessr.com/street.jpg') no-repeat center center/cover;
       font-family: 'Arial', sans-serif;
     }
 
@@ -1798,7 +1798,7 @@ export default function Home({ lang }) {
         }}
       >
         <NextImage.default
-          src={"./street1.jpg"}
+          src={"./street.jpg"}
           draggable={false}
           fill
           alt="Game Background"

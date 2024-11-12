@@ -47,7 +47,7 @@ React.useEffect(() => {
         opacity: 0.4,
         userSelect: 'none',
       }}>
-      <NextImage.default src={'./street1.jpg'}
+      <NextImage.default src={'./street.jpg'}
       fill   alt="Game Background" style={{objectFit: "cover",userSelect:'none'}}
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       />
